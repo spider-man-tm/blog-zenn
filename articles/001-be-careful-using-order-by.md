@@ -54,7 +54,7 @@ select
 from
   team
 qualify
-  row_number() over(partition by id order by ratio) = 1
+  row_number() over (partition by id order by ratio) = 1
 order by
   id
 ;
