@@ -1,11 +1,12 @@
-Blog Zenn
-===
+# Blog Zenn
 
 ### Zenn URL
+
 https://zenn.dev/takayoshi <br />
 ※ マイページへのリンクです
 
 ### 📘 How to use
+
 https://zenn.dev/zenn/articles/zenn-cli-guide
 
 #### 基本操作
@@ -30,4 +31,4 @@ npx zenn new:article --slug 記事のスラッグ --title タイトル --type id
 ```
 
 - 記事の削除
-  - Zennのダッシュボー上で記事の削除を行う
+  - Zenn の[ダッシュボード](https://zenn.dev/dashboard)上で記事の削除を行う
