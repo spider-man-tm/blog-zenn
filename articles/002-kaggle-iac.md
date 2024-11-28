@@ -6,7 +6,7 @@ topics:
   - "Terraform"
   - "Kaggle"
   - "Docker"
-published: false
+published: true
 ---
 
 # はじめに
