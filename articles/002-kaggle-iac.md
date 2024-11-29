@@ -88,6 +88,13 @@ data "google_secret_manager_secret_version" "kaggle_key" {
 }
 ```
 
+また、公開鍵も登録されているので、直ぐに ssh 接続できるようになります。
+
+```shell
+# Use the private key that matches the public key specified in terraform.tfvars.
+ssh -i ~/.ssh/id_ed25519 ubuntu@<External IP Address>
+```
+
 # Docker
 
 一応、インスタンスを起動した後に簡単にコンテナも立ち上げられるようにしたかったので、`docker/`ディレクトリ以下に必要なファイルをまとめています。
