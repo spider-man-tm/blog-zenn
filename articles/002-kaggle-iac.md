@@ -33,13 +33,15 @@ cd setup-gcp-project
 make setup-gcp-project \
     GCP_PROJECT_ID=<your_gcp_project_id> \
     BILLING_ACCOUNT_ID=<your_billing_account_id> \
-    KAGGLE_KEY=<your_kaggle_api_key>
+    KAGGLE_KEY=<your_kaggle_api_key> \
+    TF_STATE_BUCKET_NAME=<your_tf_state_bucket_name>
 ```
 
 一応、やっていることをざっと説明すると
 
 - GCP プロジェクトの作成と billing account の紐付け
 - terraform 用のサービスアカウントの作成と必要なロールの付与、およびローカル環境へのダウンロード
+- tfstate 用の GCS バケットの作成
 - 必要な API の有効化
 - シークレットマネージャーの作成
 
@@ -77,8 +79,28 @@ bucket_name = "titanic-bucket-xyz" # GCS bucket name
 location    = "ASIA"               # GCS region
 ```
 
-インスタンス・静的 IP・GCS に関する基本情報と、GitHub のユーザー情報と、Kaggle User Name の情報、並びにローカルの公開鍵のパス情報を定義しています。[terraform/modules/gce/main.tf](https://github.com/spider-man-tm/kaggle-infrastructure/blob/main/terraform/modules/gce/main.tf)、並びに
-[terraform/modules/gce/startup-script.sh.tpl](https://github.com/spider-man-tm/kaggle-infrastructure/blob/main/terraform/modules/gce/startup-script.sh.tpl)を見るとわかりますが、docker コマンドのインストール、GitHub のセットアップ、Kaggle API のセットアップ、自身のローカル環境にある公開鍵の情報受け渡し等を行なった状態で GCE が起動するようにしています。ただし、Kaggle API に利用する Kaagle Key だけは一応プライベートなものなので、先ほど GCP プロジェクトの立ち上げ時に作成した Secret Manager に対して、[data block](https://github.com/spider-man-tm/kaggle-infrastructure/blob/main/terraform/environments/competition01/main.tf) を使って参照する形にしています。
+次に、`terraform/environments/competition01/terraform.tf` ファイルに上のコマンドで作成した、tfstate 用の GCS バケットを指定します。prefix は適宜変更してください。
+
+```hcl
+terraform {
+  required_version = ">= 1.6"
+
+  backend "gcs" {
+    bucket = "tf-state-bucket-name-titanic"  # <- GCS Bucket name
+    prefix = "terraform/state"
+  }
+
+  required_providers {
+    google = {
+      source  = "hashicorp/google"
+      version = "~> 5.30"
+    }
+  }
+}
+```
+
+インスタンス・静的 IP・GCS に関する基本情報と、GitHub のユーザー情報と、Kaggle User Name の情報、並びにローカルの公開鍵のパス情報を定義しています。[terraform/modules/gce/main.tf](https://github.com/spider-man-tm/kaggle-infrastructure/blob/main/terraform/modules/gce/main.tf) と
+[terraform/modules/gce/startup-script.sh.tpl](https://github.com/spider-man-tm/kaggle-infrastructure/blob/main/terraform/modules/gce/startup-script.sh.tpl) を見るとわかりますが、docker コマンドのインストール、GitHub のセットアップ、Kaggle API のセットアップ、自身のローカル環境にある公開鍵の情報受け渡し等を行なった状態で GCE が起動するようにしています。ただし、Kaggle API に利用する Kaagle Key だけは一応プライベートなものなので、先ほど GCP プロジェクトの立ち上げ時に作成した Secret Manager に対して、[data block](https://github.com/spider-man-tm/kaggle-infrastructure/blob/main/terraform/environments/competition01/main.tf) を使って参照する形にしています。
 
 ```hcl
 # Get the value from secret manager
